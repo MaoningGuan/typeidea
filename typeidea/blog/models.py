@@ -25,6 +25,22 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_navs(cls):
+        categories = cls.objects.filter(status=cls.STATUS_NORMAL)
+        nav_categories = []
+        normal_categories = []
+        for cate in categories:
+            if cate.is_nav:
+                nav_categories.append(cate)
+            else:
+                normal_categories.append(cate)
+
+        return {
+            'navs': nav_categories,
+            'categories': normal_categories,
+        }
+
 
 class Tag(models.Model):
     STATUS_NORMAL = 1
@@ -68,6 +84,9 @@ class Post(models.Model):
     tag = models.ManyToManyField(Tag, verbose_name='标签')
     owner = models.ForeignKey(User, verbose_name='作者')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    # 用于统计每篇文章的访问量
+    pv = models.PositiveIntegerField(default=1)
+    uv = models.PositiveIntegerField(default=1)
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
@@ -75,3 +94,46 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    # 获取id=tag_id标签下的文章
+    @staticmethod
+    def get_by_tag(tag_id):
+        try:
+            tag = Tag.objects.get(id=tag_id)
+        except Tag.DoesNotExist:
+            tag = None
+            post_list = []
+        else:
+            # .select_related('category', 'owner')把外键一起获取，防止N+1问题
+            post_list = tag.post_set.filter(status=Post.STATUS_NORMAL) \
+                .select_related('category', 'owner').order_by('-created_time')
+
+        return post_list, tag
+
+    # 获取id=category_id分类下的文章
+    @staticmethod
+    def get_by_category(category_id):
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            category = None
+            post_list = []
+        else:
+            # .select_related('category', 'owner')把外键一起获取，防止N+1问题
+            post_list = category.post_set.filter(status=Post.STATUS_NORMAL) \
+                .select_related('category', 'owner').order_by('-created_time')
+
+        return post_list, category
+
+    # 获取所有的文章
+    @classmethod
+    def latest_posts(cls):
+        queryset = cls.objects.filter(status=cls.STATUS_NORMAL) \
+            .select_related('category', 'owner').order_by('-created_time')
+        return queryset
+
+    # 根据每篇文章的访问量来返回文章
+    @classmethod
+    def hot_posts(cls):
+        # 只需要返回id和title用于侧边栏展示
+        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')

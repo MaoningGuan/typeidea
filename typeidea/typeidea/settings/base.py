@@ -28,9 +28,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+
     'blog',
     'config',
     'comment',
+    'typeidea',
 
     'django.contrib.admin',
     'django.contrib.auth',
