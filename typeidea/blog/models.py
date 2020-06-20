@@ -1,6 +1,10 @@
 # Create your models here.
+import mistune
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.functional import cached_property
+from django.utils.html import strip_tags
 
 
 class Category(models.Model):
@@ -77,6 +81,7 @@ class Post(models.Model):
     title = models.CharField(max_length=255, verbose_name='标题')
     desc = models.CharField(max_length=1024, blank=True, verbose_name='摘要')
     content = models.TextField(verbose_name='正文', help_text='正文必须为MarkDown格式')
+    content_html = models.TextField(verbose_name="正文html代码", blank=True, editable=False)
     status = models.PositiveIntegerField(default=STATUS_NORMAL,
                                          choices=STATUS_ITEMS,
                                          verbose_name='状态')
@@ -85,8 +90,8 @@ class Post(models.Model):
     owner = models.ForeignKey(User, verbose_name='作者')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     # 用于统计每篇文章的访问量
-    pv = models.PositiveIntegerField(default=1)
-    uv = models.PositiveIntegerField(default=1)
+    pv = models.PositiveIntegerField(default=1, verbose_name='累计访问次数(每名用户统计间隔：1分钟)')
+    uv = models.PositiveIntegerField(default=1, verbose_name='累计访问次数(每名用户统计间隔：24小时)')
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
@@ -94,6 +99,14 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.content_html = mistune.markdown(self.content)
+        # 若摘要没有设置则去正文的前50个字符作为摘要
+        if not self.desc:
+            print('自动设置摘要。')
+            self.desc = strip_tags(self.content_html)[:100]  # strip_tags去掉HTML文本的全部HTML标签
+        super().save(*args, **kwargs)
 
     # 获取id=tag_id标签下的文章
     @staticmethod
@@ -137,3 +150,8 @@ class Post(models.Model):
     def hot_posts(cls):
         # 只需要返回id和title用于侧边栏展示
         return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+
+    # 返回tags绑定到Post实例上，用于sitemap
+    @cached_property
+    def tags(self):
+        return ','.join(self.tag.values_list('name', flat=True))

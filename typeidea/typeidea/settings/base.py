@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'config',
     'comment',
     'typeidea',
+    'xadmin',  # 加入xadmin插件
+    'crispy_forms',  # 加入xadmin插件
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,6 +45,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'blog.middleware.user_id.UserIDMiddleware',  # 产生用户唯一id的middleware
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

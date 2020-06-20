@@ -1,3 +1,5 @@
+from xadmin.layout import Row, Fieldset
+
 from django.contrib.admin.models import LogEntry
 from django.contrib import admin
 from django.urls import reverse
@@ -74,7 +76,7 @@ class PostAdmin(BaseOwnerAdmin):
     form = PostAdminForm  # 调整文章摘要的输出框为textarea
     list_display = [
         'title', 'category', 'status',
-        'created_time', 'owner', 'operator'
+        'created_time', 'owner', 'operator', 'pv', 'uv'
     ]
     list_display_links = []
 
@@ -88,15 +90,19 @@ class PostAdmin(BaseOwnerAdmin):
     # 编辑页面
     exclude = ('owner',)  # 设置不显示哪些字段
 
-    """
-    fields = (
-        ('category', 'title'),
-        'desc',
-        'status',
-        'content',
-        'tag',
-    )
-    """
+    # form_layout = (
+    #     Fieldset(
+    #         '基础信息',
+    #         Row("title", "category"),
+    #         'status',
+    #         'tag',
+    #     ),
+    #     Fieldset(
+    #         '内容信息',
+    #         'desc',
+    #         'content',
+    #     )
+    # )
     fieldsets = (
         ('基础配置', {
             'description': '基础配置描述',
@@ -123,9 +129,9 @@ class PostAdmin(BaseOwnerAdmin):
 
     class Media:
         css = {
-            'all': ("https://cdn.bootcss.com/bootstrap/4.0.0-bata.2/css/bootstrap.min.css")
+            'all': ("https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css")
         }
-        js = ('https://cdn.bootcss.com/bootstrap/4.0.0-bata.2/js/bootstrap.bundle.js')
+        js = ('https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.bundle.js')
 
     def operator(self, obj):
         return format_html(
