@@ -35,6 +35,13 @@ INSTALLED_APPS = [
     'typeidea',
     'xadmin',  # 加入xadmin插件
     'crispy_forms',  # 加入xadmin插件
+    # 添加django-autocomplete-light插件
+    'dal',
+    'dal_select2',
+    # 添加django-ckeditor富文本编辑器
+    'ckeditor',
+    'ckeditor_uploader',  # 增加上传图片的功能
+    'rest_framework',  # 添加django-rest-framework框架
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -122,5 +129,25 @@ USE_L10N = True
 
 USE_TZ = True
 
+# 设置xadmin后台显示标题和页脚
+XADMIN_TITLE = 'Typeidea 管理后台'
+XADMIN_FOOTER_TITLE = 'power by Maoning Guan'
 
+# 设置富文本编辑器
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': 800,
+        'tapSpaces': 4,
+        'extraPlugins': 'codesnippet',  # 配置代码插件
+    }
+}
 
+# 配置富文本编辑器图片上传的保存路径
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+CKEDITOR_UPLOAD_PATH = "article_images"
+
+# 修改默认的存储引擎为我们自定义的
+DEFAULT_FILE_STORAGE = 'typeidea.storage.WatermarkStorage'

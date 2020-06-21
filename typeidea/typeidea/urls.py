@@ -13,7 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+import xadmin
+from .autocomplete import CategoryAutocomplete, TagAutocomplete
+
+from django.conf import settings
+from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import views as sitemap_views
 
@@ -38,8 +43,11 @@ urlpatterns = [
     url(r'^comment/$', CommentView.as_view(), name='comment'),  # 评论提交
     url(r'^rss|feed/', LatestPostFeed(), name='rss'),  # RSS订阅
     url(r'^sitemap\.xml$', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),  # sitemap，用于搜索引擎的收录
+    url(r'^category-autocomplete/$', CategoryAutocomplete.as_view(),
+        name='category-autocomplete'),  # 分类自动补全
+    url(r'^tag-autocomplete/$', TagAutocomplete.as_view(),
+        name='tag-autocomplete'),  # 标签自动补全
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),  # 富文本编辑器上传图片接口
 
-    url(r'^super_admin/', admin.site.urls, name='super-admin'),
-    # url(r'^admin/', admin.site.urls),
-    url(r'^admin/', custom_site.urls, name='admin')
-]
+    url(r'^admin/', xadmin.site.urls, name='xadmin'),  # 后套管理
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -92,6 +92,8 @@ class Post(models.Model):
     # 用于统计每篇文章的访问量
     pv = models.PositiveIntegerField(default=1, verbose_name='累计访问次数(每名用户统计间隔：1分钟)')
     uv = models.PositiveIntegerField(default=1, verbose_name='累计访问次数(每名用户统计间隔：24小时)')
+    # 设置是否使用markdown编辑器
+    is_md = models.BooleanField(default=False, verbose_name="切换文本编辑器")
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
@@ -101,7 +103,10 @@ class Post(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.content_html = mistune.markdown(self.content)
+        if self.is_md:
+            self.content_html = mistune.markdown(self.content)
+        else:
+            self.content_html = self.content
         # 若摘要没有设置则去正文的前50个字符作为摘要
         if not self.desc:
             print('自动设置摘要。')

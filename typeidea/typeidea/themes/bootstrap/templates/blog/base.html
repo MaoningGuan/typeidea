@@ -35,9 +35,9 @@
             </form>
             <!--用户是否登录，来显示不同的按钮-->
             {% if request.user.is_authenticated %}
-                <a class="btn btn-outline-success" style="margin-left: 5px" href="/super_admin/">后台管理</a>
+                <a class="btn btn-outline-success" style="margin-left: 5px" href="/admin/">后台管理</a>
             {% else %}
-                <a class="btn btn-outline-success" style="margin-left: 5px" href="/super_admin/">登录</a>
+                <a class="btn btn-outline-success" style="margin-left: 5px" href="/admin/">登录</a>
             {% endif %}
         </div>
     </nav>
@@ -72,16 +72,17 @@
 </div>
 <footer class="footer">
     {% block footer %}
-    <div class="container">
+<!--    <div class="container">-->
+<!--        <hr/>-->
+<!--        <nav class="nav category">-->
+<!--            {% for cate in categories %}-->
+<!--            <a href="{% url 'category-list' cate.id %}" class="nav-link">-->
+<!--                {{ cate.name }}</a>-->
+<!--            {% endfor %}-->
+<!--        </nav>-->
+<!--    </div>-->
+    <div class="container power" style="margin-bottom: 10px;text-align: center">
         <hr/>
-        <nav class="nav category">
-            {% for cate in categories %}
-            <a href="{% url 'category-list' cate.id %}" class="nav-link">
-                {{ cate.name }}</a>
-            {% endfor %}
-        </nav>
-    </div>
-    <div class="container power">
         <span class="text-muted">Power By Typeidea@the5fire |</span>
         <a href="{% url 'links' %}">友情链接</a>
     </div>
