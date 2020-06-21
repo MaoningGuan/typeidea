@@ -151,3 +151,9 @@ CKEDITOR_UPLOAD_PATH = "article_images"
 
 # 修改默认的存储引擎为我们自定义的
 DEFAULT_FILE_STORAGE = 'typeidea.storage.WatermarkStorage'
+
+# django-rest-framework分页设置
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2,
+}

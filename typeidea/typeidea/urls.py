@@ -13,15 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-import xadmin
+
 from .autocomplete import CategoryAutocomplete, TagAutocomplete
+from rest_framework.routers import DefaultRouter
+from rest_framework.documentation import include_docs_urls
+import xadmin
 
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.contrib.sitemaps import views as sitemap_views
 
+from blog.apis import PostViewSet, CategoryViewSet
 from blog.rss import LatestPostFeed
 from blog.sitemap import PostSitemap
 from blog.views import (
@@ -30,7 +33,11 @@ from blog.views import (
 )
 from comment.views import CommentView
 from config.views import LinkListView
-from .custom_site import custom_site
+
+
+router = DefaultRouter()
+router.register(r'post', PostViewSet, base_name='api-post')
+router.register(r'category', CategoryViewSet, base_name='api-category')
 
 urlpatterns = [
     url(r'^$', IndexView.as_view(), name='index'),  # 首页
@@ -48,6 +55,10 @@ urlpatterns = [
     url(r'^tag-autocomplete/$', TagAutocomplete.as_view(),
         name='tag-autocomplete'),  # 标签自动补全
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),  # 富文本编辑器上传图片接口
+    # url(r'^api/post/', post_list, name='post-list'),
+    # url(r'^api/post/', PostList.as_view(), name='post-list'),  # 文章列表页api
+    url(r'^api/', include(router.urls)),
+    url(r'^api/docs/', include_docs_urls(title='typeidea apis')),  # api文档接口
 
     url(r'^admin/', xadmin.site.urls, name='xadmin'),  # 后套管理
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
