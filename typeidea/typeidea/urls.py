@@ -62,3 +62,14 @@ urlpatterns = [
 
     url(r'^admin/', xadmin.site.urls, name='xadmin'),  # 后套管理
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# 添加debug_toolbar插件的urls
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
+
+# 添加silk插件的urls
+if settings.DEBUG:
+    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]

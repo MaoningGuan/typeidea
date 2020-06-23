@@ -57,6 +57,8 @@ class SideBar(models.Model):
 
     @classmethod
     def get_all(cls):
+        # import time
+        # time.sleep(1)
         return cls.objects.filter(status=cls.STATUS_SHOW).order_by('display_type')
 
     @property
@@ -70,7 +72,7 @@ class SideBar(models.Model):
             result = self.content
         elif self.display_type == self.DISPLAY_LATEST:
             context = {
-                'posts': Post.latest_posts()[:5]
+                'posts': Post.latest_posts(with_related=False)[:5]
             }
             result = render_to_string('config/blocks/sidebar_posts.html', context)
         elif self.display_type == self.DISPLAY_HOT:

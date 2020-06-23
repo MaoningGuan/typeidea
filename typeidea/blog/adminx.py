@@ -28,11 +28,18 @@ class PostInline(admin.TabularInline):  # StackedInline样式不同
 
 # Register your models here.
 @xadmin.sites.register(Category)
-class CategoryAdmin(BaseOwnerAdmin):
+class CategoryAdmin(object):
     # 添加文章的Inline,
     # inlines = [PostInline, ]
     list_display = ('name', 'status', 'is_nav', 'owner', 'created_time', 'post_count')
     fields = ('name', 'status', 'is_nav')
+
+    def save_models(self):
+        """
+        1、用来自动补充文章、分类、标签、侧边栏、友链这些model的owner字段
+        """
+        self.new_obj.owner = self.request.user
+        return super().save_models()
 
     # 展示该分类下有多少文章
     def post_count(self, obj):
@@ -51,9 +58,16 @@ class CategoryAdmin(BaseOwnerAdmin):
 
 
 @xadmin.sites.register(Tag)
-class TagAdmin(BaseOwnerAdmin):
+class TagAdmin(object):
     list_display = ('name', 'status', 'owner', 'created_time', 'post_count')
     fields = ('name', 'status')
+
+    def save_models(self):
+        """
+        1、用来自动补充文章、分类、标签、侧边栏、友链这些model的owner字段
+        """
+        self.new_obj.owner = self.request.user
+        return super().save_models()
 
     # 展示该标签下有多少文章
     def post_count(self, obj):

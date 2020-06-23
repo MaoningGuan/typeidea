@@ -42,7 +42,7 @@ class Category(models.Model):
 
         return {
             'navs': nav_categories,
-            'categories': normal_categories,
+            # 'categories': normal_categories,
         }
 
 
@@ -107,7 +107,7 @@ class Post(models.Model):
             self.content_html = mistune.markdown(self.content)
         else:
             self.content_html = self.content
-        # 若摘要没有设置则去正文的前50个字符作为摘要
+        # 若摘要没有设置则去正文的前100个字符作为摘要
         if not self.desc:
             print('自动设置摘要。')
             self.desc = strip_tags(self.content_html)[:100]  # strip_tags去掉HTML文本的全部HTML标签
@@ -145,9 +145,11 @@ class Post(models.Model):
 
     # 获取所有的文章
     @classmethod
-    def latest_posts(cls):
-        queryset = cls.objects.filter(status=cls.STATUS_NORMAL) \
-            .select_related('category', 'owner').order_by('-created_time')
+    def latest_posts(cls, with_related=True):
+        queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
+        if with_related:
+            queryset = queryset.select_related('category', 'owner').\
+                prefetch_related('tag').order_by('-created_time')
         return queryset
 
     # 根据每篇文章的访问量来返回文章

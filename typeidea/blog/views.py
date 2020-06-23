@@ -1,5 +1,6 @@
 """ class-based view """
 from datetime import date
+from silk.profiling.profiler import silk_profile
 
 from django.core.cache import cache
 from django.db.models import Q, F
@@ -14,6 +15,7 @@ from .models import Post, Tag, Category
 
 # 公共view：获取导航栏和侧边栏的数据
 class CommonViewMixin:
+    @silk_profile(name='get_navs')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
