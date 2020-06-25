@@ -2,6 +2,7 @@
 import mistune
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
@@ -155,8 +156,12 @@ class Post(models.Model):
     # 根据每篇文章的访问量来返回文章
     @classmethod
     def hot_posts(cls):
-        # 只需要返回id和title用于侧边栏展示
-        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+        result = cache.get('hot_posts')
+        if not result:
+            # 只需要返回id和title用于侧边栏展示
+            result = cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+            cache.set('hot_posts', result, 10 * 60)
+        return result
 
     # 返回tags绑定到Post实例上，用于sitemap
     @cached_property
